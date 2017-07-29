@@ -17,12 +17,10 @@ class DelayRoute extends React.Component {
 
   static propTypes = {
     delay: PropTypes.bool,
-    validateLocation: PropTypes.func,
     children: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.node
     ]),
-    location: PropTypes.object // Needed?
   };
 
   static contextTypes = {
@@ -38,27 +36,43 @@ class DelayRoute extends React.Component {
     // When true, the new route will not be visible, the current route stays displayed.
     delay: false,
 
-    // A reference to the previous route that will be shown until the new route is ready for
-    // display. Not all previous locations can be used in terms of good UI. In the async work
-    // scenario, routes where the user clicks away before the async work is fully loaded 
-    // should not be used -- and the App's global 'loading' state maps to the delay prop.
-    validateLocation: (props, state) => !state.transitioning && !props.delay,
   };
 
   constructor(props, context) {
     super(props, context);
-    
+    console.log('DelayRoute constructor called...')
+    const { location } = context.router.route
     this.state = {
 
       // Current location's pathname changed (example: from '/' to '/foo')
       transitioning: false,
 
+      rawDelayPath: location && location.pathname,
+
       // The last location - this may or not be valid. Or it's possible that it starts out
       // invalid then based on new props coming in changes to valid.
-      prevLocation: context.router.route.location,
+      validDelayPath: location && location.pathname,
+    }
+  }
 
-      // The last valid
-      validPrevLocation: null,
+  // A reference to the previous route that will be shown until the new route is ready for
+  // display. Not all previous locations can be used in terms of good UI. In the async work
+  // scenario, routes where the user clicks away before the async work is fully loaded 
+  // should not be used -- and the App's global 'loading' state maps to the delay prop.
+  isValidateLocation() {
+    return !this.state.transitioning && !this.props.delay
+  }
+
+  validateDelayPath() {
+
+    const { rawDelayPath, validDelayPath } = this.state
+
+    // Already set and passed validation
+    if (rawDelayPath === validDelayPath) return
+
+    if (this.isValidateLocation()) {
+      console.log('### Set Valid Delay Path to ###', this.state.rawDelayPath)
+      this.setState({ validDelayPath: this.state.rawDelayPath })
     }
   }
 
@@ -70,57 +84,65 @@ class DelayRoute extends React.Component {
 
     const { location } = this.context.router.route
     const { location: nextLocation } = nextContext.router.route
-    const { validateLocation } = this.props
-    const { prevLocation } = this.state
+    const { rawDelayPath, validDelayPath } = this.state
 
-    console.log('componentWillReceiveProps', location.pathname, nextLocation.pathname)
+    console.log('componentWillReceiveProps', rawDelayPath, validDelayPath)
 
     if (nextLocation !== location) {
-      this.setState({ transitioning: true, prevLocation: location })
+      this.setState({ transitioning: true, rawDelayPath: nextLocation.pathname })
 
       // The path just changed. Let the rest of the tree render. This gives a chance for the global
       // state to change (componentWillMount) which may alter the passed-in 'delay' prop.
       return
 
     }
-    
-    // Validate on every props change after route transition. Props could potentially change making
-    // the location 'good' - for example when async works is loaded.
-    if (validateLocation(prevLocation) === true) {
-      this.setState({ validPrevLocation: prevLocation })
-    }
+
+
+  }
+  
+  componentDidMount() {
+
+    const { rawDelayPath, validDelayPath } = this.state
+
+    console.log('componentDidMount', rawDelayPath, validDelayPath)
+
+    this.validateDelayPath()
   }
 
   componentDidUpdate(prevProps, prevState) {
-
-    console.log('componentDidUpdate', this.state.transitioning)
+    const { rawDelayPath, validDelayPath } = this.state
+    const { validateLocation } = this.props
+    console.log('componentDidUpdate', rawDelayPath, validDelayPath)
 
     // Transitioning done, so any sub-tree rendering is also done
-    if (this.state.transitioning) {
+    if (this.state.transitioning === true) {
       this.setState({ transitioning: false })
-    }
-  }
 
+      // Don't try setting delayPath until one render is done
+      return
+    } 
+
+    // Validate on every props change after route transition. Props could potentially change making
+    // the location 'good' - for example when async works is loaded. Do it here instead of 
+    // 'componentWillReceiveProps' so that routes with no delay can get added to validDelayPath.
+    this.validateDelayPath()
+
+  }
+  
   render() {
 
-    const { transitioning, prevLocation, validPrevLocation } = this.state
+    const { transitioning, rawDelayPath, validDelayPath } = this.state
     const { delay } = this.props
 
-    console.log('render transitioning %s, delay %s', transitioning, delay)
-
+    console.log('render transitioning %s, delay %s, rawDelayPath %s, validDelayPath %s', transitioning, delay, rawDelayPath, validDelayPath)
+    
+    // Both these paths will be visible by default. Up to developer to add css to hide one.
     if (transitioning || delay) return [
-      <Route {...this.props} render={ withStyleDisplayNone(this.props.render) } />,
-      <Route {...this.props} location={ validPrevLocation || prevLocation } />
+      <Route {...this.props} location={{ pathname: validDelayPath || rawDelayPath }} />,
+      <Route key="main" {...this.props} />
     ]
 
-    return <Route {...this.props} />
-  }
-}
-
-function withStyleDisplayNone(WrappedComponent) {
-  const style = { display: 'none' }
-  return function EnhancedComponent(props) {
-    return <WrappedComponent {...props} style={style} />
+    return <Route key="main" {...this.props} />
   }
 }
 

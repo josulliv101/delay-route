@@ -1,13 +1,13 @@
 {
   "name": "@josulliv101/delay-route",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Delay Route for React Router v4",
   "license": "MIT",
   "authors": [
     "Joe Sullivan"
   ],
-  "main": "index.js",
-  "module": "es/index.js",
+  "main": "lib/index.js",
+  "module": "lib/es/index.js",
   "scripts": {
     "build": "node ./tools/build.js",
     "watch": "babel ./modules -d . --ignore __tests__ --watch",

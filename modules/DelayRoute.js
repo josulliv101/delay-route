@@ -138,7 +138,7 @@ class DelayRoute extends React.Component {
     
     // Both these paths will be visible by default. Up to developer to add css to hide one.
     if (transitioning || delay) return [
-      <Route {...this.props} location={{ pathname: validDelayPath || rawDelayPath }} />,
+      <Route key="transitioningTo" {...this.props} location={{ pathname: validDelayPath || rawDelayPath }} />,
       <Route key="main" {...this.props} />
     ]
 

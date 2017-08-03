@@ -4,7 +4,7 @@ This package is experimental. Use with React-Router v4.
 
 ### Goals
 
-Delay a route from display until a condition is met
+Delay a route from display until a condition is met.
 
 ### Notice
 

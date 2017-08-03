@@ -1,11 +1,7 @@
 {
   "name": "@josulliv101/delay-route",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Delay Route for React Router v4",
-  "license": "MIT",
-  "authors": [
-    "Joe Sullivan"
-  ],
   "main": "lib/index.js",
   "module": "lib/es/index.js",
   "scripts": {
@@ -16,6 +12,16 @@
     "lint": "eslint modules",
     "test": "jest"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josulliv101/delay-route.git"
+  },
+  "author": "Joe Sullivan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/josulliv101/delay-route/issues"
+  },
+  "homepage": "https://github.com/josulliv101/delay-route#readme",
   "peerDependencies": {
     "react": ">=16"
   },

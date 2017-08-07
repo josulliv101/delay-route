@@ -25,9 +25,7 @@ class DelayRoute extends React.Component {
 
   static contextTypes = {
     router: PropTypes.shape({
-      history: PropTypes.object.isRequired, // Needed?
-      route: PropTypes.object.isRequired, // Needed?
-      staticContext: PropTypes.object // Needed?
+      route: PropTypes.object.isRequired,
     })
   };
 
@@ -103,7 +101,7 @@ class DelayRoute extends React.Component {
     const { delay } = this.props
     // Both these paths will be visible by default. Up to developer to add css to hide one.
     if (transitioning || delay) return [
-      <Route key="transitioningTo" {...this.props} location={{ pathname: validDelayPath || rawDelayPath }} />,
+      <Route hidden={true} key="transitioningTo" {...this.props} location={{ pathname: validDelayPath || rawDelayPath }} />,
       <Route key="main" {...this.props} />
     ]
     return <Route key="main" {...this.props} />

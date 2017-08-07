@@ -1,6 +1,6 @@
 {
   "name": "@josulliv101/delay-route",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Delay Route for React Router v4",
   "main": "lib/index.js",
   "module": "lib/es/index.js",
